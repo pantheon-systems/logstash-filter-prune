@@ -21,9 +21,9 @@ class LogStash::Filters::Prune < LogStash::Filters::Base
   config :interpolate, :validate => :boolean, :default => false
 
   # Include only fields only if their names match specified regexps, default to empty list which means include everything.
-  # [source,ruby] 
-  #     filter { 
-  #       %PLUGIN% { 
+  # [source,ruby]
+  #     filter {
+  #       %PLUGIN% {
   #         whitelist_names => [ "method", "(referrer|status)", "${some}_field" ]
   #       }
   #     }
@@ -31,8 +31,8 @@ class LogStash::Filters::Prune < LogStash::Filters::Base
 
   # Exclude fields whose names match specified regexps, by default exclude unresolved `%{field}` strings.
   # [source,ruby]
-  #     filter { 
-  #       %PLUGIN% { 
+  #     filter {
+  #       %PLUGIN% {
   #         blacklist_names => [ "method", "(referrer|status)", "${some}_field" ]
   #       }
   #     }
@@ -41,8 +41,8 @@ class LogStash::Filters::Prune < LogStash::Filters::Base
   # Include specified fields only if their values match one of the supplied regular expressions.
   # In case field values are arrays, each array item is matched against the regular expressions and only matching array items will be included.
   # [source,ruby]
-  #     filter { 
-  #       %PLUGIN% { 
+  #     filter {
+  #       %PLUGIN% {
   #         whitelist_values => [ "uripath", "/index.php",
   #                               "method", "(GET|POST)",
   #                               "status", "^[^2]" ]
@@ -53,8 +53,8 @@ class LogStash::Filters::Prune < LogStash::Filters::Base
   # Exclude specified fields if their values match one of the supplied regular expressions.
   # In case field values are arrays, each array item is matched against the regular expressions and matching array items will be excluded.
   # [source,ruby]
-  #     filter { 
-  #       %PLUGIN% { 
+  #     filter {
+  #       %PLUGIN% {
   #         blacklist_values => [ "uripath", "/index.php",
   #                               "method", "(HEAD|OPTIONS)",
   #                               "status", "^[^2]" ]
@@ -78,7 +78,7 @@ class LogStash::Filters::Prune < LogStash::Filters::Base
 
   public
   def filter(event)
-    
+
 
     hash = event.to_hash
 
@@ -91,6 +91,7 @@ class LogStash::Filters::Prune < LogStash::Filters::Base
     unless @whitelist_names.empty?
       @whitelist_names_regexp = Regexp.union(@whitelist_names.map {|x| Regexp.new(event.sprintf(x))}) if @interpolate
       hash.each_key do |field|
+        next if field.nil?
         fields_to_remove << field unless field.match(@whitelist_names_regexp)
       end
     end
@@ -98,6 +99,7 @@ class LogStash::Filters::Prune < LogStash::Filters::Base
     unless @blacklist_names.empty?
       @blacklist_names_regexp = Regexp.union(@blacklist_names.map {|x| Regexp.new(event.sprintf(x))}) if @interpolate
       hash.each_key do |field|
+        next if field.nil?
         fields_to_remove << field if field.match(@blacklist_names_regexp)
       end
     end
